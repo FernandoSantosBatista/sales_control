@@ -1,64 +1,57 @@
 <template>
-  <div class="container">
-    <div class="col-md-6 offset-md-3">
-      <input
-        class="form-control"
-        v-model="searchTerm"
-        placeholder="Pesquisar..."
-      />
+   <div class="container col-md-6 offset-md-3">
+    <table class="table table-striped table-hover text-start">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">
+            <input
+              class="form-control"
+              v-model="searchTerm"
+              placeholder="Pesquisar..."
+            />
+          </th>
+          <th></th>
+          <th>Editar</th>
+          <th>Excluir</th>
+        </tr>
+      </thead>
+      <tbody v-for="(message, index) in getCurrentPageMonths()" :key="index">
+    
+        <tr>
+          <td>{{ message.text }}</td>
+          <td>{{ message.price }}</td>
+          <td>
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="currentMessage = message">
+  Editar
+</button>
+         </td>
+         <td><button type="button" class="btn btn-danger" @click="deleteMessage(message.id)">Excluir</button></td>
+         
+        </tr>
+      </tbody>
+    </table>
+
+  <!-- Modal -->
+  <div class="modal fade" ref="editModal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Atualizar</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input class="form-control shadow-sm mb-2 bg-body rounded" type="text" v-model="currentMessage.text">
+          <input class="form-control shadow-sm mb-2 bg-body rounded" type="number" v-model="currentMessage.price">
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-primary" @click="updateMessage(currentMessage)">Atualizar</button>
+        </div>
+      </div>
     </div>
-    <br />
-
-    <form
-      class="card shadow p-3 mb-5 bg-body rounded"
-      method="POST"
-      name="formulario"
-      v-for="(message, index) in getCurrentPageMonths()"
-      :key="index"
-    >
-      <div class="form-group">
-        <div class="col-md-6 offset-md-3">
-          <select
-            v-model="message.text"
-            type="text"
-            class="form-control shadow-sm mb-4 bg-body rounded"
-          >
-            <option>Janeiro</option>
-            <option>Fevereiro</option>
-            <option>Março</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <div class="col-md-6 offset-md-3">
-          <input
-            v-model="message.price"
-            type="number"
-            class="form-control shadow-sm mb-2 bg-body rounded"
-          />
-        </div>
-      </div>
-      <br />
-
-      <div class="d-grid gap-2 col-md-6 offset-md-3">
-        <button
-          @click="updateMessage(message)"
-          type="button"
-          class="btn btn-primary"
-        >
-          Atualizar
-        </button>
-        <button
-          @click="deleteMessage(message.id)"
-          type="button"
-          class="btn btn-danger"
-        >
-          Deletar
-        </button>
-      </div>
-    </form>
-
+  </div>
+  <hr />
     <nav aria-label="Navegação de página exemplo">
       <ul class="pagination justify-content-center">
         <li class="page-item">
@@ -70,7 +63,9 @@
         </li>
       </ul>
     </nav>
-  </div>
+</div>
+
+
 </template>
 
 <script>
@@ -88,22 +83,25 @@ import { db } from "../firebaseConfig";
 import { ref, onUnmounted } from "vue";
 
 export default {
-  name: "HomeView",
+  name: "ManagementView",
   components: {},
   data: () => {
     return {
-      messages: ref([]),
+     messages: ref([]),
       currentPage: 1,
-      itemsPerPage: 5,
+      itemsPerPage: 10,
       searchTerm: "",
+      currentMessage: {},
+    
     };
   },
 
   computed: {
+    
     salesByMonth() {
       return this.messages.reduce((acc, curr) => {
         if (curr.text in acc) {
-          acc[curr.text] += curr.price;
+          acc[curr.text]  += curr.price;
         } else {
           acc[curr.text] = curr.price;
         }
@@ -113,26 +111,7 @@ export default {
   },
 
   methods: {
-    addNewMessage: function () {
-      try {
-        addDoc(collection(db, "messages"), {
-          text: this.$refs.textmessage.value,
-          price: parseFloat(this.$refs.pricemessage.value),
-          date: Date.now(),
-        });
-        alert("Mensagem adicionada com sucesso!");
-      } catch (e) {
-        console.error(e);
-        alert(
-          "Ocorreu um erro ao tentar adicionar a mensagem. Por favor, tente novamente."
-        );
-      }
-    },
-    filterMonths() {
-      return this.messages.filter((message) =>
-        message.text.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    },
+    
     getCurrentPageMonths() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       return this.filterMonths().slice(
@@ -140,6 +119,23 @@ export default {
         startIndex + this.itemsPerPage
       );
     },
+ 
+
+
+
+    addNewMessage: function () {
+      addDoc(collection(db, "messages"), {
+        text: this.$refs.textmessage.value,
+        price: parseFloat(this.$refs.pricemessage.value),
+        date: Date.now(),
+      });
+    },
+    filterMonths() {
+      return this.messages.filter((message) =>
+        message.text.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
+    
 
     updateMessage: function (message) {
       try {
@@ -156,7 +152,6 @@ export default {
         );
       }
     },
-
     deleteMessage: function (id) {
       if (
         confirm("Cuidado, essa ação não poderá ser desfeita. Deseja continuar?")
@@ -171,13 +166,10 @@ export default {
         }
       }
     },
-  },
+      },
 
   mounted() {
-    const latestQuery = query(
-      collection(db, "messages"),
-      orderBy("date", "asc")
-    );
+    const latestQuery = query(collection(db, "messages"), orderBy('date', "desc"));
     const livemessages = onSnapshot(latestQuery, (snapshot) => {
       this.messages = snapshot.docs.map((doc) => {
         return {
@@ -194,7 +186,12 @@ export default {
 </script>
 
 <style>
-.card {
-  background-color: #f8f9fa;
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
 }
 </style>

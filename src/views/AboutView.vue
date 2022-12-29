@@ -11,6 +11,16 @@
             <option>Janeiro</option>
             <option>Fevereiro</option>
             <option>Março</option>
+            <option>Abril</option>
+            <option>Maio</option>
+            <option>Junho</option>
+            <option>Julho</option>
+            <option>Agosto</option>
+            <option>Setembro</option>
+            <option>Outubro</option>
+            <option>Novembro</option>
+            <option>Dezembro</option>
+
           </select>
         </div>
       </div>
@@ -44,104 +54,32 @@
 
   <hr />
   <div class="container col-md-6 offset-md-3">
-    <table class="table table-striped table-hover text-start">
-      <thead class="table-dark">
-        <tr>
-          <th scope="col">
-            <input
-              class="form-control"
-              v-model="searchTerm"
-              placeholder="Pesquisar..."
-            />
-          </th>
-          <th scope="col"></th>
-          <th>Editar</th>
-        </tr>
-      </thead>
-      <tbody v-for="(message, index) in getCurrentPageMonths()" :key="index">
-    
-        <tr>
-          <td>{{ message.text }}</td>
-          <td>{{ message.price }}</td>
-         
-          <td>
-            <router-link
-              type="button"
-              class="btn btn-primary"
-              :to="`/gerenciamento/`"
-            >
-              Editar
-            </router-link>
-            <!-- button to open edit modal -->
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- ... -->
+  <table class="table table-striped table-hover text-start">
+    <thead class="table-dark">
+      <tr>
+        <th>
+          <router-link
+            type="button"
+            class="btn btn-secondary"
+            :to="`/gerenciamento/`"
+          >
+            Editar
+          </router-link>
+        </th>
+        <th>Total</th>
+        
+      </tr>
+    </thead>
+    <tbody v-for="(value, key) in salesByMonth" :key="key">
+      <tr>
+        <td> {{ key }} </td>
+        <td>{{ value.toFixed(2) }}</td>
+      </tr>
+    </tbody>
+  </table>
 
-    <button
-      type="button"
-      class="btn btn-secondary"
-      data-bs-toggle="modal"
-      data-bs-target="#exampleModal"
-    >
-      Total por mês
-    </button>
-    <div
-      class="modal fade"
-      id="exampleModal"
-      tabindex="-1"
-      aria-labelledby="exampleModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Total</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="list-group">
-              <ul
-                class="list-group"
-                v-for="(value, key) in salesByMonth"
-                :key="key"
-              >
-                <li class="list-group-item">
-                  {{ key }} <br />{{ value.toFixed(2) }}
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr />
-    <nav aria-label="Navegação de página exemplo">
-      <ul class="pagination justify-content-center">
-        <li class="page-item">
-          <a @click="currentPage--" class="page-link" href="#">Anterior</a>
-        </li>
-
-        <li class="page-item">
-          <a class="page-link" href="#" @click="currentPage++">Próximo</a>
-        </li>
-      </ul>
-    </nav>
+ 
   </div>
 </template>
 
@@ -198,18 +136,8 @@ export default {
     alert("Ocorreu um erro ao tentar adicionar a mensagem. Por favor, tente novamente.");
   }
 },
-    filterMonths() {
-      return this.messages.filter((message) =>
-        message.text.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    },
-    getCurrentPageMonths() {
-      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-      return this.filterMonths().slice(
-        startIndex,
-        startIndex + this.itemsPerPage
-      );
-    },
+    
+    
 
     updateMessage: function (message) {
       setDoc(doc(db, "messages", message.id), {

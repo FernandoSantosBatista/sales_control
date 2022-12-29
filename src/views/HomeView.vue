@@ -4,6 +4,7 @@
     <div v-for="(message, index) in getCurrentPageMonths()" :key="index">
       <input v-model="message.text" type="text" />
       <input v-model="message.price" type="number" />
+      {{ message.date.toLocaleDateString() }}
 
       <button @click="updateMessage(message)">update</button>
       <button @click="deleteMessage(message.id)">delete</button>
@@ -113,8 +114,8 @@ export default {
           id: doc.id,
           text: doc.data().text,
           price: doc.data().price,
-          date: doc.data().date,
-        };
+          date: new Date(doc.data().date)
+        }
       });
     });
     onUnmounted(livemessages);

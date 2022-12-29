@@ -1,16 +1,21 @@
 <template>
-  <div>
-    <h1>Login</h1>
-    <form @submit.prevent="handleSubmit">
-      <input type="email" placeholder="Ingrese email" v-model.trim="email" />
-      <input
+  <div class="container">
+  <div class="col-md-6 offset-md-3">
+    
+    <form class="card shadow p-3 mb-5 bg-body rounded" @submit.prevent="handleSubmit">
+      <h1 >Login</h1>
+      <input class="form-control shadow-sm mb-4 bg-body rounded"
+           type="email" placeholder="email" v-model.trim="email" />
+      <input class="form-control shadow-sm mb-4 bg-body rounded"
+          
         type="password"
-        placeholder="Ingrese contraseña"
+        placeholder="senha"
         v-model.trim="password"
       />
-      <button type="submit" :disabled="userStore.loadingUser">Acceso</button>
+      <button class="btn btn-secondary" type="submit" :disabled="userStore.loadingUser">Enviar</button>
     </form>
   </div>
+</div>
 </template>
 
 <script setup>
@@ -24,7 +29,7 @@ const password = ref("");
 
 const handleSubmit = async () => {
   if (!email.value || password.value.length < 6) {
-    return alert("llena los campos");
+    return alert("Preencher todos os campos");
   }
   await userStore.loginUser(email.value, password.value);
 };
